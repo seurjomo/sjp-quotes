@@ -1175,9 +1175,11 @@ function generatePDF() {
 
   // ── Core PDF build function (called with or without logo) ──
   function buildPDF(logoImg) {
+    try {
+
     // Logo (optional)
     if (logoImg) {
-      try { doc.addImage(logoImg, 'JPEG', 10, 10, 40, 40); } catch(e) {}
+      try { doc.addImage(logoImg, 'JPEG', 10, 10, 40, 40); } catch(e) { console.warn('Logo err:', e); }
     } else {
       // Text placeholder when no logo
       doc.setFontSize(20);
@@ -1206,7 +1208,7 @@ function generatePDF() {
     doc.setFont(undefined, 'normal');
     let fromY = 70;
     doc.text('Sergio Jordan', 15, fromY); fromY += 6;
-    doc.text('San Luis Potosí, México', 15, fromY); fromY += 6;
+    doc.text('San Luis Potosi, Mexico', 15, fromY); fromY += 6;
     if (email) { doc.text(email, 15, fromY); fromY += 6; }
     if (phone) { doc.text(phone, 15, fromY); }
 
@@ -1222,10 +1224,12 @@ function generatePDF() {
     if (address2)    { doc.text(address2,    105, toY); }
 
     // Project
+    const projLabel = t.project + ': ';
+    const projValue = project ? project : '-';
     doc.setFont(undefined, 'bold');
-    doc.text(t.project + ': ', 15, 102);
+    doc.text(projLabel, 15, 102);
     doc.setFont(undefined, 'normal');
-    doc.text(project || '—', 15 + doc.getTextWidth(t.project + ': '), 102);
+    doc.text(projValue, 50, 102);
 
     // Items table
     doc.autoTable({
@@ -1280,6 +1284,11 @@ function generatePDF() {
 
     doc.save(Quotation_No + '.pdf');
     showToast('✅ PDF: ' + Quotation_No);
+
+    } catch(err) {
+      console.error('PDF build error:', err);
+      showToast('Error: ' + err.message);
+    }
   }
 
   // Logo embedded as base64 — always available, no external file needed
